@@ -84,6 +84,25 @@ func TestNewWithConfig_ClusterEmptyAddresses(t *testing.T) {
 	Assert(t, err.Error() == "redis cluster addresses provided but all are empty", "unexpected error: %v", err)
 }
 
+func TestNewWithConfig_SentinelRequiresMasterName(t *testing.T) {
+	t.Log("sentinel mode requires master name")
+	_, err := redis.NewWithConfig(redis.Config{
+		SentinelAddresses: []string{"127.0.0.1:26379"},
+	})
+	Assert(t, err != nil, "expected error when sentinel master name is missing")
+	Assert(t, err.Error() == "redis sentinel master name is required when using sentinel addresses", "unexpected error: %v", err)
+}
+
+func TestNewWithConfig_SentinelEmptyAddresses(t *testing.T) {
+	t.Log("sentinel mode with empty addresses should fail")
+	_, err := redis.NewWithConfig(redis.Config{
+		SentinelAddresses:  []string{"", ""},
+		SentinelMasterName: "mymaster",
+	})
+	Assert(t, err != nil, "expected error when sentinel addresses are all empty")
+	Assert(t, err.Error() == "redis sentinel addresses provided but all are empty", "unexpected error: %v", err)
+}
+
 func TestRedisWithTLS(t *testing.T) {
 	t.Log("connecting to redis over TLS")
 

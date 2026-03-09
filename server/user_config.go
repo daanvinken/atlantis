@@ -102,6 +102,8 @@ type UserConfig struct {
 	RedisInsecureSkipVerify         bool   `mapstructure:"redis-insecure-skip-verify"`
 	RedisUsername                   string `mapstructure:"redis-username"`
 	RedisClusterAddresses           string `mapstructure:"redis-cluster-addresses"`
+	RedisSentinelAddresses          string `mapstructure:"redis-sentinel-addresses"`
+	RedisSentinelMasterName         string `mapstructure:"redis-sentinel-master-name"`
 	RepoConfig                      string `mapstructure:"repo-config"`
 	RepoConfigJSON                  string `mapstructure:"repo-config-json"`
 	RepoAllowlist                   string `mapstructure:"repo-allowlist"`

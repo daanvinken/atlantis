@@ -1015,7 +1015,7 @@ The locking database type to use for storing plan and apply locks. Defaults to `
 Notes:
 
 - If set to `boltdb`, only one process may have access to the boltdb instance.
-- If set to `redis`, then `--redis-host`, `--redis-port`, and `--redis-password` must be set for single-node mode, or `--redis-cluster-addresses` for Redis Cluster mode.
+- If set to `redis`, then `--redis-host`, `--redis-port`, and `--redis-password` must be set for single-node mode, `--redis-cluster-addresses` for Redis Cluster mode, or `--redis-sentinel-addresses` and `--redis-sentinel-master-name` for Redis Sentinel mode.
 
 ### `--log-level` <Badge text="v0.1.3+" type="info"/>
 
@@ -1211,6 +1211,26 @@ ATLANTIS_REDIS_CLUSTER_ADDRESSES="redis-node-0:6379,redis-node-1:6379,redis-node
 ```
 
 Comma-delimited list of Redis cluster node addresses in the format `host:port`. When set, Atlantis uses Redis Cluster mode instead of single-node mode. This is mutually exclusive with `--redis-host`/`--redis-port` (which are used for single-node mode).
+
+### `--redis-sentinel-addresses`
+
+```bash
+atlantis server --redis-sentinel-addresses="sentinel-0:26379,sentinel-1:26379,sentinel-2:26379"
+# or
+ATLANTIS_REDIS_SENTINEL_ADDRESSES="sentinel-0:26379,sentinel-1:26379,sentinel-2:26379"
+```
+
+Comma-delimited list of Redis Sentinel addresses in the format `host:port`. When set, Atlantis uses Redis Sentinel mode for high availability. Requires `--redis-sentinel-master-name` to be set.
+
+### `--redis-sentinel-master-name`
+
+```bash
+atlantis server --redis-sentinel-master-name="mymaster"
+# or
+ATLANTIS_REDIS_SENTINEL_MASTER_NAME="mymaster"
+```
+
+The name of the Redis Sentinel master. Required when using `--redis-sentinel-addresses`.
 
 ### `--repo-allowlist` <Badge text="v0.13.0" type="info"/>
 

@@ -136,6 +136,8 @@ const (
 	RedisInsecureSkipVerify          = "redis-insecure-skip-verify"
 	RedisUsername                    = "redis-username"
 	RedisClusterAddresses            = "redis-cluster-addresses"
+	RedisSentinelAddresses           = "redis-sentinel-addresses"
+	RedisSentinelMasterName          = "redis-sentinel-master-name"
 	RepoConfigFlag                   = "repo-config"
 	RepoConfigJSONFlag               = "repo-config-json"
 	RepoAllowlistFlag                = "repo-allowlist"
@@ -428,6 +430,13 @@ var stringFlags = map[string]stringFlag{
 	RedisClusterAddresses: {
 		description: "Comma-delimited list of Redis cluster node addresses in the format 'host:port'. " +
 			"When set, Atlantis uses Redis Cluster mode instead of single-node mode.",
+	},
+	RedisSentinelAddresses: {
+		description: "Comma-delimited list of Redis Sentinel addresses in the format 'host:port'. " +
+			"When set, Atlantis uses Redis Sentinel mode for high availability.",
+	},
+	RedisSentinelMasterName: {
+		description: "The name of the Redis Sentinel master. Required when using --redis-sentinel-addresses.",
 	},
 	RepoConfigFlag: {
 		description: "Path to a repo config file, used to customize how Atlantis runs on each repo. See runatlantis.io/docs for more details.",

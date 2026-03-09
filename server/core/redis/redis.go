@@ -41,6 +41,10 @@ type Config struct {
 	DB                 int
 	// ClusterAddresses is a list of cluster node addresses. When set, cluster mode is used.
 	ClusterAddresses []string
+	// SentinelAddresses is a list of Sentinel addresses. When set, Sentinel mode is used.
+	SentinelAddresses []string
+	// SentinelMasterName is the name of the Sentinel master. Required when using Sentinel.
+	SentinelMasterName string
 }
 
 // New creates a new RedisDB for client interactions with redis.
@@ -59,6 +63,7 @@ func New(hostname string, port int, password string, tlsEnabled bool, insecureSk
 // NewWithConfig creates a new RedisDB based on the provided configuration.
 // It automatically selects the appropriate Redis client type:
 // - If ClusterAddresses is set, uses Redis Cluster mode
+// - If SentinelAddresses is set, uses Redis Sentinel mode
 // - Otherwise, uses single-node mode
 func NewWithConfig(cfg Config) (*RedisDB, error) {
 	var rdb redis.Cmdable
@@ -89,6 +94,30 @@ func NewWithConfig(cfg Config) (*RedisDB, error) {
 			Username:  cfg.Username,
 			Password:  cfg.Password,
 			TLSConfig: tlsConfig,
+		})
+	case len(cfg.SentinelAddresses) > 0:
+		if cfg.SentinelMasterName == "" {
+			return nil, errors.New("redis sentinel master name is required when using sentinel addresses")
+		}
+		// Filter out empty addresses
+		var addrs []string
+		for _, addr := range cfg.SentinelAddresses {
+			if addr != "" {
+				addrs = append(addrs, addr)
+			}
+		}
+		if len(addrs) == 0 {
+			return nil, errors.New("redis sentinel addresses provided but all are empty")
+		}
+		rdb = redis.NewFailoverClient(&redis.FailoverOptions{
+			MasterName:       cfg.SentinelMasterName,
+			SentinelAddrs:    addrs,
+			SentinelUsername: cfg.Username,
+			SentinelPassword: cfg.Password,
+			Username:         cfg.Username,
+			Password:         cfg.Password,
+			DB:               cfg.DB,
+			TLSConfig:        tlsConfig,
 		})
 	default:
 		address := fmt.Sprintf("%s:%d", cfg.Hostname, cfg.Port)

@@ -496,13 +496,18 @@ func NewServer(userConfig UserConfig, config Config) (*Server, error) {
 
 	switch dbtype := userConfig.LockingDBType; dbtype {
 	case "redis":
-		var clusterAddrs []string
+		var clusterAddrs, sentinelAddrs []string
 		if userConfig.RedisClusterAddresses != "" {
 			clusterAddrs = strings.Split(userConfig.RedisClusterAddresses, ",")
+		}
+		if userConfig.RedisSentinelAddresses != "" {
+			sentinelAddrs = strings.Split(userConfig.RedisSentinelAddresses, ",")
 		}
 		switch {
 		case len(clusterAddrs) > 0:
 			logger.Info(fmt.Sprintf("Utilizing Redis DB in cluster mode, addresses: %s", userConfig.RedisClusterAddresses))
+		case len(sentinelAddrs) > 0:
+			logger.Info(fmt.Sprintf("Utilizing Redis DB in sentinel mode, addresses: %s, master: %s", userConfig.RedisSentinelAddresses, userConfig.RedisSentinelMasterName))
 		default:
 			logger.Info(fmt.Sprintf("Utilizing Redis DB in single-node mode, host: %s, port: %d", userConfig.RedisHost, userConfig.RedisPort))
 		}
@@ -515,6 +520,8 @@ func NewServer(userConfig UserConfig, config Config) (*Server, error) {
 			InsecureSkipVerify: userConfig.RedisInsecureSkipVerify,
 			DB:                 userConfig.RedisDB,
 			ClusterAddresses:   clusterAddrs,
+			SentinelAddresses:  sentinelAddrs,
+			SentinelMasterName: userConfig.RedisSentinelMasterName,
 		})
 		if err != nil {
 			return nil, err
